@@ -15,7 +15,7 @@ import {
   Sparkles,
   Terminal,
   BookOpen,
-  Users,
+  // Users,
   ExternalLink,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
