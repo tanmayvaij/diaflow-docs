@@ -303,10 +303,10 @@ const DiaFlowDocs = () => {
               </div>
 
               <CodeBlock language="typescript" id="hero-example">
-                {`import { Agent, Memory } from "diaflow";
+                {`import DiaFlowAgent, { Memory } from "diaflow";
 import * as z from "zod";
 
-const agent = new Agent({
+const agent = new DiaFlowAgent({
   apiKey: process.env.GENAI_API_KEY!,
   tools,
   memory: new Memory(),
