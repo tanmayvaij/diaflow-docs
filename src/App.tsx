@@ -15,8 +15,11 @@ import {
   Sparkles,
   Terminal,
   BookOpen,
-  // Users,
+  Database,
   ExternalLink,
+  FileText,
+  Folder,
+  HardDrive,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -27,7 +30,7 @@ const DiaFlowDocs = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["home", "features", "quickstart", "docs"];
+      const sections = ["home", "features", "quickstart", "tools", "memory"];
       const scrollPosition = window.scrollY + 100;
 
       for (const section of sections) {
@@ -169,12 +172,18 @@ const DiaFlowDocs = () => {
               >
                 Quick Start
               </NavItem>
-              {/* <NavItem
-                isActive={activeSection === "docs"}
-                onClick={() => scrollToSection("docs")}
+              <NavItem
+                isActive={activeSection === "tools"}
+                onClick={() => scrollToSection("tools")}
               >
-                Docs
-              </NavItem> */}
+                Tools
+              </NavItem>
+              <NavItem
+                isActive={activeSection === "memory"}
+                onClick={() => scrollToSection("memory")}
+              >
+                Memory
+              </NavItem>
             </div>
 
             <div className="hidden md:flex items-center space-x-4">
@@ -222,10 +231,16 @@ const DiaFlowDocs = () => {
                   Quick Start
                 </NavItem>
                 <NavItem
-                  isActive={activeSection === "docs"}
-                  onClick={() => scrollToSection("docs")}
+                  isActive={activeSection === "tools"}
+                  onClick={() => scrollToSection("tools")}
                 >
-                  Docs
+                  Tools
+                </NavItem>
+                <NavItem
+                  isActive={activeSection === "memory"}
+                  onClick={() => scrollToSection("memory")}
+                >
+                  Memory
                 </NavItem>
                 <div className="pt-2 border-t border-slate-200">
                   <a
@@ -253,7 +268,7 @@ const DiaFlowDocs = () => {
             <div className="text-center">
               <div className="inline-flex items-center space-x-2 bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
                 <Star className="w-4 h-4" />
-                <span>Lightweight AI Agent Framework</span>
+                <span>Lightweight AI Agent Framework for Gemini</span>
               </div>
 
               <h1 className="text-4xl sm:text-6xl font-bold text-slate-900 mb-6">
@@ -264,9 +279,11 @@ const DiaFlowDocs = () => {
               </h1>
 
               <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-10 leading-relaxed">
-                A lightweight AI agent framework built on Google GenAI. Create
-                tool-using agents with memory and structured JSON outputs
-                powered by Zod. Think LangChain, but simpler.
+                A lightweight AI agent framework built exclusively for Google
+                GenAI. Create tool-using agents with memory and structured JSON
+                outputs powered by Zod. Unlike other frameworks, DiaFlow is
+                focused entirely on Gemini models — keeping the API simple and
+                beginner-friendly.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -303,20 +320,23 @@ const DiaFlowDocs = () => {
               </div>
 
               <CodeBlock language="typescript" id="hero-example">
-                {`import DiaFlowAgent, { Memory } from "diaflow";
+                {`import DiaFlowAgent, { InMemory } from "diaflow";
 import * as z from "zod";
+import { tools } from "./tools";
 
 const agent = new DiaFlowAgent({
   apiKey: process.env.GENAI_API_KEY!,
   tools,
-  memory: new Memory(),
+  memory: new InMemory(),
+  model: "gemini-2.0-flash", // default
   responseJsonSchema: z.object({
     success: z.boolean(),
     message: z.string(),
   }),
+  verbose: true, // Enable logging
 });
 
-const result = await agent.runAgent("Create a directory called testdir");
+const result = await agent.run("Create a directory called testdir");
 console.log(result);`}
               </CodeBlock>
             </div>
@@ -331,7 +351,7 @@ console.log(result);`}
                 Powerful Features
               </h2>
               <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                Everything you need to build sophisticated AI agents
+                Everything you need to build sophisticated AI agents with Gemini
               </p>
             </div>
 
@@ -339,42 +359,42 @@ console.log(result);`}
               <FeatureCard
                 icon={Code2}
                 title="Tool Calling"
-                description="Define function declarations and handlers that the model can call to interact with external systems and APIs."
+                description="Define function declarations and handlers that the model can call. Includes built-in filesystem tools for common operations."
                 gradient="from-blue-500 to-blue-600"
               />
 
               <FeatureCard
                 icon={Brain}
                 title="Memory Support"
-                description="Maintain multi-turn conversations with built-in memory management or run agents statelessly as needed."
+                description="Choose between in-memory or persistent MongoDB-backed memory. Maintain context across sessions with ease."
                 gradient="from-purple-500 to-purple-600"
               />
 
               <FeatureCard
                 icon={Package}
                 title="Structured Outputs"
-                description="Enforce response schemas using Zod validation to ensure consistent, type-safe JSON outputs."
+                description="Enforce response schemas using Zod validation to ensure consistent, type-safe JSON outputs from your agents."
                 gradient="from-green-500 to-green-600"
               />
 
               <FeatureCard
                 icon={Link}
                 title="Composable Agents"
-                description="Connect multiple agents to form graph-based flows with sequential or parallel execution patterns."
+                description="Chain multiple agents to form workflows. Create complex orchestrations with sequential or parallel execution."
                 gradient="from-indigo-500 to-indigo-600"
               />
 
               <FeatureCard
                 icon={Zap}
                 title="TypeScript-first"
-                description="Full TypeScript support with comprehensive typings for an excellent developer experience."
+                description="Full TypeScript support with comprehensive typings for agents, tools, and schemas. Great developer experience."
                 gradient="from-orange-500 to-orange-600"
               />
 
               <FeatureCard
                 icon={Terminal}
                 title="Lightweight"
-                description="Minimal dependencies and clean architecture. No bloated frameworks - just the essentials."
+                description="Only depends on @google/genai, zod, and mongodb. No bloated frameworks - just the essentials."
                 gradient="from-red-500 to-red-600"
               />
             </div>
@@ -430,260 +450,679 @@ console.log(result);`}
                   Basic Usage
                 </h3>
 
-                <p className="text-slate-600 mb-4">Create your first agent:</p>
+                <p className="text-slate-600 mb-4">
+                  Create your first agent with built-in tools:
+                </p>
 
                 <CodeBlock language="typescript" id="basic-usage">
-                  {`import DiaFlowAgent, { Memory } from "diaflow";
-import * as z from "zod";
-
-// Example tools
-import { tools } from "./tools";
+                  {`import DiaFlowAgent, { InMemory, tools } from "diaflow";
 
 const agent = new DiaFlowAgent({
   apiKey: process.env.GENAI_API_KEY!,
-  tools,
-  memory: new Memory(),
-  responseJsonSchema: z.object({
-    success: z.boolean(),
-    message: z.string(),
-  }),
+  tools: [
+    tools.fileSystemTools.readFileTool(),
+    tools.fileSystemTools.writeFileTool(),
+    tools.fileSystemTools.makeDirectoryTool(),
+    tools.fileSystemTools.currentWorkingDirectoryTool(),
+  ],
+  memory: new InMemory(),
+  verbose: true, // See what's happening under the hood
 });
 
-(async () => {
-  const result = await agent.runAgent("Create a directory called testdir");
-  console.log(result);
-})();`}
+const result = await agent.run("Read the package.json file");
+console.log(result);`}
                 </CodeBlock>
               </div>
 
-              {/* Defining Tools */}
+              {/* Defining Custom Tools */}
               <div>
                 <h3 className="text-2xl font-bold text-slate-800 mb-4 flex items-center">
                   <span className="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mr-3">
                     3
                   </span>
-                  Defining Tools
+                  Defining Custom Tools
                 </h3>
 
                 <p className="text-slate-600 mb-4">
-                  Define tools that your AI agent can use:
+                  Create your own tools with proper typing:
                 </p>
 
-                <CodeBlock language="typescript" id="tools-example">
-                  {`import { Tool } from "diaflow";
-import { mkdirSync } from "fs";
-import { resolve } from "path";
+                <CodeBlock language="typescript" id="custom-tools">
+                  {`import { DiaFlowTool, ToolResponse } from "diaflow";
+import { Type } from "@google/genai";
 
-export const tools: Tool[] = [
-  {
-    declaration: {
-      name: "makeDirectory",
-      description: "Creates a directory at the given path",
-      parameters: {
-        type: "object",
-        properties: {
-          filePath: { type: "string", description: "Path to create" },
+export const makeDirectoryTool = (): DiaFlowTool => ({
+  declaration: {
+    name: "makeDirectory",
+    description: "Creates a directory on a given path",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        dirPath: {
+          type: Type.STRING,
+          description: "Path where the directory has to be created",
         },
-        required: ["filePath"],
       },
-    },
-    handler: ({ filePath }: { filePath: string }) => {
-      mkdirSync(resolve(filePath), { recursive: true });
-      return { success: true, message: \`Created at \${filePath}\` };
+      required: ["dirPath"],
     },
   },
-];`}
+  handler: ({ dirPath }): ToolResponse => {
+    try {
+      mkdirSync(dirPath, { recursive: true });
+      return {
+        success: true,
+        data: \`Directory created at \${dirPath}\`,
+        error: undefined,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        data: undefined,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  },
+});`}
                 </CodeBlock>
               </div>
 
-              {/* Memory Example */}
+              {/* Structured Output */}
               <div>
                 <h3 className="text-2xl font-bold text-slate-800 mb-4 flex items-center">
                   <span className="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mr-3">
                     4
                   </span>
-                  Using Memory
+                  Structured Output with Zod
                 </h3>
 
                 <p className="text-slate-600 mb-4">
-                  Maintain conversation context with memory:
+                  Get type-safe, validated JSON responses:
                 </p>
 
-                <CodeBlock language="typescript" id="memory-example">
-                  {`import { Memory } from "diaflow";
+                <CodeBlock language="typescript" id="structured-output">
+                  {`import DiaFlowAgent, { InMemory } from "diaflow";
+import * as z from "zod";
 
-const memory = new Memory();
-memory.add({ role: "user", parts: [{ text: "Hello" }] });
+const agent = new DiaFlowAgent({
+  apiKey: process.env.GENAI_API_KEY!,
+  memory: new InMemory(),
+  responseJsonSchema: z.object({
+    success: z.boolean(),
+    message: z.string(),
+    data: z.object({
+      filesCreated: z.array(z.string()),
+      errors: z.array(z.string()).optional(),
+    }),
+  }),
+});
 
-console.log(memory.getContent());`}
+// Response will be typed and validated automatically
+const result = await agent.run("Analyze the project structure");`}
                 </CodeBlock>
               </div>
 
               <Alert>
                 <BookOpen className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Next Steps:</strong> Check out the full documentation
-                  to learn about advanced features like graph-like execution,
-                  custom configurations, and more complex tool integrations.
+                  <strong>Pro Tip:</strong> Enable verbose mode with{" "}
+                  <code className="bg-slate-100 px-1 rounded">
+                    verbose: true
+                  </code>{" "}
+                  to see tool calls, responses, and the full agent execution
+                  flow in your console.
                 </AlertDescription>
               </Alert>
             </div>
           </div>
         </section>
 
-        {/* Documentation Section */}
-        <section id="docs" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        {/* Built-in Tools Section */}
+        <section id="tools" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
           <div className="max-w-6xl mx-auto">
-            {/* <div className="text-center mb-12">
+            <div className="text-center mb-12">
               <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-                Documentation
+                Built-in File System Tools
               </h2>
               <p className="text-xl text-slate-600">
-                Complete guide to building with DiaFlow
+                DiaFlow ships with production-ready tools for common operations
               </p>
-            </div> */}
+            </div>
 
-            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
                 <div className="flex items-center mb-4">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                    <Code2 className="text-blue-600" size={20} />
+                    <FileText className="text-blue-600" size={20} />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-800">
-                    API Reference
+                    readFileTool
                   </h3>
                 </div>
                 <p className="text-slate-600 mb-4">
-                  Complete API documentation with all available methods,
-                  parameters, and examples.
+                  Reads file contents from a given path with specified encoding.
                 </p>
-                <div className="space-y-2 text-sm">
-                  <div className="font-medium text-slate-700">Covers:</div>
-                  <ul className="space-y-1 text-slate-600 ml-4">
-                    <li>• Agent configuration options</li>
-                    <li>• Tool declaration format</li>
-                    <li>• Memory management</li>
-                    <li>• Response schemas</li>
-                  </ul>
-                </div>
+                <CodeBlock language="typescript" id="read-file-tool">
+                  {`import { tools } from "diaflow";
+
+const agent = new DiaFlowAgent({
+  tools: [tools.fileSystemTools.readFileTool()],
+  // ... other config
+});`}
+                </CodeBlock>
               </div>
 
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
                 <div className="flex items-center mb-4">
                   <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                    <BookOpen className="text-green-600" size={20} />
+                    <FileText className="text-green-600" size={20} />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-800">
-                    Guides & Tutorials
+                    writeFileTool
                   </h3>
                 </div>
                 <p className="text-slate-600 mb-4">
-                  Step-by-step guides to help you build complex AI agent
-                  workflows.
+                  Writes content to a file at the specified path with encoding.
                 </p>
-                <div className="space-y-2 text-sm">
-                  <div className="font-medium text-slate-700">Includes:</div>
-                  <ul className="space-y-1 text-slate-600 ml-4">
-                    <li>• Building your first agent</li>
-                    <li>• Advanced tool integration</li>
-                    <li>• Graph-like execution patterns</li>
-                    <li>• Error handling best practices</li>
-                  </ul>
-                </div>
+                <CodeBlock language="typescript" id="write-file-tool">
+                  {`import { tools } from "diaflow";
+
+const agent = new DiaFlowAgent({
+  tools: [tools.fileSystemTools.writeFileTool()],
+  // ... other config
+});`}
+                </CodeBlock>
               </div>
 
-              <div className="bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200 rounded-xl p-6">
                 <div className="flex items-center mb-4">
                   <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                    <Terminal className="text-purple-600" size={20} />
+                    <Folder className="text-purple-600" size={20} />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-800">
-                    Examples
+                    makeDirectoryTool
                   </h3>
                 </div>
                 <p className="text-slate-600 mb-4">
-                  Real-world examples and code samples to get you started
-                  quickly.
+                  Creates directories at the specified path with recursive
+                  support.
                 </p>
-                <div className="space-y-2 text-sm">
-                  <div className="font-medium text-slate-700">Examples:</div>
-                  <ul className="space-y-1 text-slate-600 ml-4">
-                    <li>• File system operations</li>
-                    <li>• API integrations</li>
-                    <li>• Multi-agent workflows</li>
-                    <li>• Custom tool development</li>
-                  </ul>
-                </div>
+                <CodeBlock language="typescript" id="mkdir-tool">
+                  {`import { tools } from "diaflow";
+
+const agent = new DiaFlowAgent({
+  tools: [tools.fileSystemTools.makeDirectoryTool()],
+  // ... other config
+});`}
+                </CodeBlock>
               </div>
 
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-6">
                 <div className="flex items-center mb-4">
                   <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
-                    <Users className="text-orange-600" size={20} />
+                    <HardDrive className="text-orange-600" size={20} />
                   </div>
                   <h3 className="text-xl font-semibold text-slate-800">
-                    Community
+                    currentWorkingDirectoryTool
                   </h3>
                 </div>
                 <p className="text-slate-600 mb-4">
-                  Connect with other developers and get help from the community.
+                  Returns the absolute path of the current working directory.
                 </p>
-                <div className="space-y-2 text-sm">
-                  <div className="font-medium text-slate-700">Resources:</div>
-                  <ul className="space-y-1 text-slate-600 ml-4">
-                    <li>• GitHub Discussions</li>
-                    <li>• Issue tracking</li>
-                    <li>• Contributing guidelines</li>
-                    <li>• Roadmap & feature requests</li>
+                <CodeBlock language="typescript" id="cwd-tool">
+                  {`import { tools } from "diaflow";
+
+const agent = new DiaFlowAgent({
+  tools: [tools.fileSystemTools.currentWorkingDirectoryTool()],
+  // ... other config
+});`}
+                </CodeBlock>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-8">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">
+                Using All Tools Together
+              </h3>
+              <p className="text-slate-600 mb-6">
+                Import and use all built-in tools at once for maximum
+                capability:
+              </p>
+              <CodeBlock language="typescript" id="all-tools">
+                {`import DiaFlowAgent, { InMemory, tools } from "diaflow";
+
+const agent = new DiaFlowAgent({
+  apiKey: process.env.GENAI_API_KEY!,
+  tools: [
+    tools.fileSystemTools.readFileTool(),
+    tools.fileSystemTools.writeFileTool(),
+    tools.fileSystemTools.makeDirectoryTool(),
+    tools.fileSystemTools.currentWorkingDirectoryTool(),
+  ],
+  memory: new InMemory(),
+  verbose: true,
+});
+
+// Now your agent can read, write, create directories, and navigate!
+await agent.run("Create a logs directory and write today's date to log.txt");`}
+              </CodeBlock>
+            </div>
+          </div>
+        </section>
+
+        {/* Memory Section */}
+        <section
+          id="memory"
+          className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50 to-indigo-50"
+        >
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+                Memory Management
+              </h2>
+              <p className="text-xl text-slate-600">
+                Choose between in-memory or persistent storage for conversation
+                context
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+              {/* In-Memory */}
+              <div className="bg-white border border-slate-200 rounded-xl p-8">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-4">
+                    <Zap className="text-white" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-800">
+                      InMemory
+                    </h3>
+                    <p className="text-slate-600 text-sm">
+                      Fast, ephemeral storage
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-slate-600 mb-6">
+                  Perfect for single-session agents or when you don't need to
+                  persist conversation history.
+                </p>
+
+                <CodeBlock language="typescript" id="in-memory">
+                  {`import DiaFlowAgent, { InMemory } from "diaflow";
+
+const agent = new DiaFlowAgent({
+  apiKey: process.env.GENAI_API_KEY!,
+  memory: new InMemory(),
+});
+
+// Memory is reset when the process ends
+await agent.run("Hello!");
+await agent.run("What did I just say?"); // Agent remembers!`}
+                </CodeBlock>
+
+                <div className="mt-6 space-y-3">
+                  <h4 className="font-semibold text-slate-800">Key Methods:</h4>
+                  <ul className="space-y-2 text-sm text-slate-600">
+                    <li className="flex items-start">
+                      <span className="text-indigo-600 mr-2">•</span>
+                      <span>
+                        <code className="bg-slate-100 px-1 rounded">
+                          addUserText(text)
+                        </code>{" "}
+                        - Add user message
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-indigo-600 mr-2">•</span>
+                      <span>
+                        <code className="bg-slate-100 px-1 rounded">
+                          addToolCall(name, args)
+                        </code>{" "}
+                        - Record tool invocation
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-indigo-600 mr-2">•</span>
+                      <span>
+                        <code className="bg-slate-100 px-1 rounded">
+                          addToolResponse(name, result)
+                        </code>{" "}
+                        - Store tool output
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-indigo-600 mr-2">•</span>
+                      <span>
+                        <code className="bg-slate-100 px-1 rounded">
+                          getContent()
+                        </code>{" "}
+                        - Retrieve full history
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-indigo-600 mr-2">•</span>
+                      <span>
+                        <code className="bg-slate-100 px-1 rounded">
+                          reset()
+                        </code>{" "}
+                        - Clear all memory
+                      </span>
+                    </li>
                   </ul>
                 </div>
               </div>
-            </div> */}
 
-            {/* Key Concepts */}
-            <div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-8 text-center">
-                Key Concepts
-              </h3>
-
-              <div className="space-y-8">
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
-                  <h4 className="text-xl font-semibold text-slate-800 mb-3">
-                    Agents
-                  </h4>
-                  <p className="text-slate-600 mb-4">
-                    The core component of DiaFlow. Agents orchestrate the
-                    interaction between the AI model, tools, and memory systems.
-                  </p>
-                  <CodeBlock language="typescript" id="agent-concept">
-                    {`const agent = new Agent({
-  apiKey: process.env.GENAI_API_KEY!,
-  model: "gemini-2.0-flash", // Optional, defaults to gemini-2.0-flash
-  tools: [...], // Array of tool definitions
-  memory: new Memory(), // Optional memory instance
-  responseJsonSchema: schema, // Optional Zod schema for structured output
-});`}
-                  </CodeBlock>
+              {/* Persistent Memory */}
+              <div className="bg-white border border-slate-200 rounded-xl p-8">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-4">
+                    <Database className="text-white" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-800">
+                      PersistentMemory
+                    </h3>
+                    <p className="text-slate-600 text-sm">
+                      MongoDB-backed storage
+                    </p>
+                  </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
-                  <h4 className="text-xl font-semibold text-slate-800 mb-3">
-                    Graph-Like Execution
-                  </h4>
-                  <p className="text-slate-600 mb-4">
-                    Chain multiple agents together to create complex workflows
-                    with branching, sequencing, or parallel execution.
-                  </p>
-                  <CodeBlock language="typescript" id="graph-concept">
-                    {`const agentA = new Agent({ ... });
-const agentB = new Agent({ ... });
+                <p className="text-slate-600 mb-6">
+                  Ideal for multi-session agents where conversation history
+                  needs to persist across restarts.
+                </p>
 
-const outputA = await agentA.runAgent("Fetch user details");
-const outputB = await agentB.runAgent(outputA);`}
-                  </CodeBlock>
+                <CodeBlock language="typescript" id="persistent-memory">
+                  {`import DiaFlowAgent, { PersistentMemory } from "diaflow";
+
+const agent = new DiaFlowAgent({
+  apiKey: process.env.GENAI_API_KEY!,
+  memory: new PersistentMemory(
+    "mongodb://localhost:27017"
+  ),
+});
+
+// Memory persists in MongoDB collection
+await agent.run("Remember this important fact!");
+// Restart your app...
+await agent.run("What did I tell you earlier?"); // Still remembers!`}
+                </CodeBlock>
+
+                <div className="mt-6 space-y-3">
+                  <h4 className="font-semibold text-slate-800">Features:</h4>
+                  <ul className="space-y-2 text-sm text-slate-600">
+                    <li className="flex items-start">
+                      <span className="text-purple-600 mr-2">•</span>
+                      <span>
+                        Stores in{" "}
+                        <code className="bg-slate-100 px-1 rounded">
+                          diaflow.memory
+                        </code>{" "}
+                        collection
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-purple-600 mr-2">•</span>
+                      <span>Automatic connection management</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-purple-600 mr-2">•</span>
+                      <span>Same BaseMemory interface as InMemory</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-purple-600 mr-2">•</span>
+                      <span>Async operations for all methods</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-purple-600 mr-2">•</span>
+                      <span>Perfect for production deployments</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
+
+            {/* BaseMemory Interface */}
+            <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-8 text-white">
+              <h3 className="text-2xl font-bold mb-4">BaseMemory Interface</h3>
+              <p className="text-slate-300 mb-6">
+                Both memory implementations follow the same interface, making it
+                easy to switch between them:
+              </p>
+              <CodeBlock language="typescript" id="base-memory">
+                {`export interface BaseMemory {
+  addUserText(text: string): Promise<void> | void;
+  addToolCall(name: string, args: Record<string, any>): Promise<void> | void;
+  addToolResponse(name: string, result: ToolResponse): Promise<void> | void;
+  addModelText(text: string): Promise<void> | void;
+  getContent(): Promise<Content[]> | Content[];
+  reset(): Promise<void> | void;
+}
+
+// Switch between memory types without changing your code:
+const memory = process.env.USE_MONGO 
+  ? new PersistentMemory(process.env.MONGO_URI!)
+  : new InMemory();`}
+              </CodeBlock>
+            </div>
+          </div>
+        </section>
+
+        {/* Advanced Examples */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+                Advanced Examples
+              </h2>
+              <p className="text-xl text-slate-600">
+                Real-world patterns for building production agents
+              </p>
+            </div>
+
+            <div className="space-y-8">
+              {/* Graph Execution */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-8">
+                <h3 className="text-2xl font-bold text-slate-800 mb-4 flex items-center">
+                  <Link className="mr-3 text-green-600" size={28} />
+                  Graph-Like Execution
+                </h3>
+                <p className="text-slate-600 mb-6">
+                  Chain multiple agents together to create complex workflows
+                  with sequential or parallel execution:
+                </p>
+                <CodeBlock language="typescript" id="graph-execution">
+                  {`import DiaFlowAgent, { InMemory, tools } from "diaflow";
+
+// Agent 1: File analyzer
+const analyzerAgent = new DiaFlowAgent({
+  apiKey: process.env.GENAI_API_KEY!,
+  tools: [tools.fileSystemTools.readFileTool()],
+  memory: new InMemory(),
+});
+
+// Agent 2: Report generator
+const reportAgent = new DiaFlowAgent({
+  apiKey: process.env.GENAI_API_KEY!,
+  tools: [tools.fileSystemTools.writeFileTool()],
+  memory: new InMemory(),
+});
+
+// Sequential workflow
+const analysis = await analyzerAgent.run("Analyze package.json");
+const report = await reportAgent.run(
+  \`Generate a report based on this: \${analysis}\`
+);
+
+console.log("Workflow complete:", report);`}
+                </CodeBlock>
+              </div>
+
+              {/* Verbose Logging */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-8">
+                <h3 className="text-2xl font-bold text-slate-800 mb-4 flex items-center">
+                  <Terminal className="mr-3 text-blue-600" size={28} />
+                  Debugging with Verbose Mode
+                </h3>
+                <p className="text-slate-600 mb-6">
+                  Enable verbose logging to see exactly what your agent is
+                  doing:
+                </p>
+                <CodeBlock language="typescript" id="verbose-mode">
+                  {`const agent = new DiaFlowAgent({
+  apiKey: process.env.GENAI_API_KEY!,
+  tools: [tools.fileSystemTools.currentWorkingDirectoryTool()],
+  verbose: true, // 👈 Enable detailed logging
+});
+
+await agent.run("What is the current working directory?");
+
+// Console output:
+// [DiaFlowAgent] ▶️  User input: What is the current working directory?
+// [DiaFlowAgent] 🛠️  Model requested tool: currentWorkingDirectory with args: {}
+// [DiaFlowAgent] ✔️  Tool response: Current working directory: /home/user/project
+// [DiaFlowAgent] ✴️  Final text response: The current working directory is...`}
+                </CodeBlock>
+              </div>
+
+              {/* Complete Example */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-8">
+                <h3 className="text-2xl font-bold text-slate-800 mb-4 flex items-center">
+                  <Sparkles className="mr-3 text-purple-600" size={28} />
+                  Complete Production Example
+                </h3>
+                <p className="text-slate-600 mb-6">
+                  A full example with error handling, structured output, and all
+                  features:
+                </p>
+                <CodeBlock language="typescript" id="complete-example">
+                  {`import DiaFlowAgent, { InMemory, tools, DiaFlowTool } from "diaflow";
+import * as z from "zod";
+
+// Define response schema
+const responseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.object({
+    filesProcessed: z.array(z.string()),
+    totalSize: z.number().optional(),
+  }).optional(),
+  errors: z.array(z.string()).optional(),
+});
+
+// Create agent with all built-in tools
+const agent = new DiaFlowAgent({
+  apiKey: process.env.GENAI_API_KEY!,
+  model: "gemini-2.0-flash",
+  tools: [
+    tools.fileSystemTools.readFileTool(),
+    tools.fileSystemTools.writeFileTool(),
+    tools.fileSystemTools.makeDirectoryTool(),
+    tools.fileSystemTools.currentWorkingDirectoryTool(),
+  ],
+  memory: new InMemory(),
+  responseJsonSchema: responseSchema,
+  verbose: true,
+});
+
+// Run the agent
+try {
+  const result = await agent.run(
+    "Create a 'reports' directory and write a summary of package.json to reports/summary.txt"
+  );
+  
+  console.log("Success:", result.success);
+  console.log("Message:", result.message);
+  console.log("Files processed:", result.data?.filesProcessed);
+} catch (error) {
+  console.error("Agent failed:", error);
+}
+
+// Type-safe result thanks to Zod!
+// TypeScript knows the exact shape of 'result'`}
+                </CodeBlock>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Model Support */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50 to-indigo-50">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+                Supported Gemini Models
+              </h2>
+              <p className="text-xl text-slate-600">
+                DiaFlow works with all Gemini model variants
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl border border-slate-200 p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h4 className="font-semibold text-slate-800 mb-3">
+                    Gemini 2.5 Series
+                  </h4>
+                  <ul className="space-y-2 text-slate-600">
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full mr-3"></div>
+                      <code className="text-sm">gemini-2.5-pro</code>
+                    </li>
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full mr-3"></div>
+                      <code className="text-sm">gemini-2.5-flash</code>
+                    </li>
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full mr-3"></div>
+                      <code className="text-sm">gemini-2.5-flash-lite</code>
+                    </li>
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full mr-3"></div>
+                      <code className="text-sm">gemini-2.5-flash-image</code>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-800 mb-3">
+                    Gemini 2.0 Series
+                  </h4>
+                  <ul className="space-y-2 text-slate-600">
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+                      <code className="text-sm">gemini-2.0-flash</code>{" "}
+                      <span className="text-xs ml-2 text-green-600">
+                        (default)
+                      </span>
+                    </li>
+                    <li className="flex items-center">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+                      <code className="text-sm">gemini-2.0-flash-lite</code>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <CodeBlock language="typescript" id="model-selection">
+                {`// Specify model in constructor
+const agent = new DiaFlowAgent({
+  apiKey: process.env.GENAI_API_KEY!,
+  model: "gemini-2.5-pro", // Use any supported model
+  // ... other options
+});`}
+              </CodeBlock>
+            </div>
+
+            <Alert className="mt-8">
+              <Star className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Why Gemini only?</strong> By focusing solely on Gemini,
+                DiaFlow keeps the API simple and ensures the best integration.
+                Plus, Gemini is currently the only top-tier LLM with a generous
+                free tier, making it perfect for beginners!
+              </AlertDescription>
+            </Alert>
           </div>
         </section>
       </main>
@@ -700,8 +1139,9 @@ const outputB = await agentB.runAgent(outputA);`}
                 <span className="text-xl font-bold">DiaFlow</span>
               </div>
               <p className="text-slate-400 mb-4 max-w-md">
-                A lightweight AI agent framework built on Google GenAI. Create
-                tool-using agents with memory and structured outputs.
+                A lightweight AI agent framework built exclusively for Google
+                GenAI. Create tool-using agents with memory and structured
+                outputs.
               </p>
               <div className="flex space-x-4">
                 <a
@@ -726,15 +1166,23 @@ const outputB = await agentB.runAgent(outputA);`}
                     Quick Start
                   </button>
                 </li>
-                {/* <li>
+                <li>
                   <button
-                    onClick={() => scrollToSection("docs")}
+                    onClick={() => scrollToSection("tools")}
                     className="hover:text-white transition-colors"
                   >
-                    API Reference
+                    Built-in Tools
                   </button>
-                </li> */}
-                {/* <li>
+                </li>
+                <li>
+                  <button
+                    onClick={() => scrollToSection("memory")}
+                    className="hover:text-white transition-colors"
+                  >
+                    Memory
+                  </button>
+                </li>
+                <li>
                   <a
                     href="https://github.com/tanmayvaij/diaflow#examples"
                     target="_blank"
@@ -744,14 +1192,6 @@ const outputB = await agentB.runAgent(outputA);`}
                     Examples
                   </a>
                 </li>
-                <li>
-                  <button
-                    onClick={() => scrollToSection("docs")}
-                    className="hover:text-white transition-colors"
-                  >
-                    Guides
-                  </button>
-                </li> */}
               </ul>
             </div>
 
@@ -788,16 +1228,16 @@ const outputB = await agentB.runAgent(outputA);`}
                     Discussions
                   </a>
                 </li>
-                {/* <li>
+                <li>
                   <a
-                    href="https://github.com/tanmayvaij/diaflow/blob/main/CONTRIBUTING.md"
+                    href="https://www.npmjs.com/package/diaflow"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-white transition-colors"
                   >
-                    Contributing
+                    npm Package
                   </a>
-                </li> */}
+                </li>
               </ul>
             </div>
           </div>
